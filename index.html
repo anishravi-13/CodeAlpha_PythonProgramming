@@ -3,127 +3,256 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodeAlpha Hangman Game</title>
+  <title>CodeAlpha Python Internship - Interactive Project Suite</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <style>
     @keyframes popIn {
-      0% { transform: scale(0.8); opacity: 0; }
+      0% { transform: scale(0.85); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
     }
-    .animate-pop { animation: popIn 0.25s ease-out forwards; }
+    .animate-pop { animation: popIn 0.2s ease-out forwards; }
     .key-btn:disabled { opacity: 0.35; cursor: not-allowed; }
   </style>
 </head>
-<body class="bg-transparent text-[var(--foreground)] antialiased p-3 select-none">
-  <div class="max-w-xl mx-auto bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] rounded-2xl p-5 shadow-lg flex flex-col gap-4">
+<body class="bg-transparent text-[var(--foreground)] antialiased p-2 sm:p-4 select-none">
+  <div class="max-w-3xl mx-auto bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] rounded-2xl shadow-xl overflow-hidden">
     
-    <!-- Header -->
-    <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
+    <!-- Top Header & Navigation Bar -->
+    <div class="p-4 border-b border-[var(--border)] bg-[var(--background)]/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
       <div>
-        <h1 class="text-xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">
-          🎯 Hangman Game
-          <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 font-semibold border border-emerald-500/30">CodeAlpha Task 1</span>
-        </h1>
-        <p class="text-xs text-[var(--muted-foreground)]">Guess the secret word one letter at a time</p>
+        <div class="flex items-center gap-2">
+          <span class="text-lg font-bold tracking-tight text-[var(--foreground)]">CodeAlpha Python Tasks</span>
+          <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 font-semibold border border-emerald-500/30">All 4 Tasks Live</span>
+        </div>
+        <p class="text-xs text-[var(--muted-foreground)]">Interactive web demonstration of Python assignment projects</p>
       </div>
-      <button id="reset-btn" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-[var(--accent)] hover:opacity-90 transition border border-[var(--border)] flex items-center gap-1">
-        🔄 New Game
+      <a href="https://github.com/anishravi-13/CodeAlpha_PythonProgramming" target="_blank" class="self-start sm:self-auto px-3 py-1.5 text-xs font-medium rounded-lg bg-[var(--foreground)] text-[var(--background)] hover:opacity-90 transition flex items-center gap-1.5 shadow-sm">
+        <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        GitHub Repo
+      </a>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="flex overflow-x-auto border-b border-[var(--border)] bg-[var(--card)] px-3 text-xs font-semibold">
+      <button onclick="switchTab('tab-t1')" id="btn-t1" class="tab-btn px-3 py-2.5 border-b-2 border-emerald-500 text-emerald-500 flex items-center gap-1.5 whitespace-nowrap">
+        🎮 Task 1: Hangman
+      </button>
+      <button onclick="switchTab('tab-t2')" id="btn-t2" class="tab-btn px-3 py-2.5 border-b-2 border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center gap-1.5 whitespace-nowrap">
+        📈 Task 2: Stock Tracker
+      </button>
+      <button onclick="switchTab('tab-t3')" id="btn-t3" class="tab-btn px-3 py-2.5 border-b-2 border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center gap-1.5 whitespace-nowrap">
+        ⚙️ Task 3: Automation
+      </button>
+      <button onclick="switchTab('tab-t4')" id="btn-t4" class="tab-btn px-3 py-2.5 border-b-2 border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)] flex items-center gap-1.5 whitespace-nowrap">
+        🤖 Task 4: Chatbot
       </button>
     </div>
 
-    <!-- Main Game Area -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
-      
-      <!-- Hangman Graphic (SVG) -->
-      <div class="flex flex-col items-center justify-center p-3 bg-[var(--background)]/60 rounded-xl border border-[var(--border)]">
-        <svg id="hangman-svg" viewBox="0 0 160 160" class="w-36 h-36 stroke-current text-[var(--foreground)]" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">
-          <!-- Gallows Base -->
-          <line x1="20" y1="145" x2="140" y2="145" class="opacity-70" />
-          <!-- Upright Post -->
-          <line x1="45" y1="145" x2="45" y2="20" class="opacity-70" />
-          <!-- Top Beam -->
-          <line x1="45" y1="20" x2="110" y2="20" class="opacity-70" />
-          <!-- Support Beam -->
-          <line x1="45" y1="45" x2="70" y2="20" class="opacity-70" />
-          <!-- Rope -->
-          <line x1="110" y1="20" x2="110" y2="40" class="stroke-amber-500/80" stroke-width="2" />
+    <!-- Tab Contents -->
+    <div class="p-4 sm:p-5">
 
-          <!-- Dynamic Body Parts -->
-          <!-- 1: Head -->
-          <circle id="part-head" cx="110" cy="52" r="12" class="hidden text-rose-500" stroke-width="3" />
-          <!-- 2: Body -->
-          <line id="part-body" x1="110" y1="64" x2="110" y2="98" class="hidden text-rose-500" stroke-width="3" />
-          <!-- 3: Left Arm -->
-          <line id="part-left-arm" x1="110" y1="74" x2="92" y2="88" class="hidden text-rose-500" stroke-width="3" />
-          <!-- 4: Right Arm -->
-          <line id="part-right-arm" x1="110" y1="74" x2="128" y2="88" class="hidden text-rose-500" stroke-width="3" />
-          <!-- 5: Left Leg -->
-          <line id="part-left-leg" x1="110" y1="98" x2="94" y2="125" class="hidden text-rose-500" stroke-width="3" />
-          <!-- 6: Right Leg -->
-          <line id="part-right-leg" x1="110" y1="98" x2="126" y2="125" class="hidden text-rose-500" stroke-width="3" />
-        </svg>
+      <!-- ================= TASK 1: HANGMAN ================= -->
+      <div id="tab-t1" class="tab-pane flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <p class="text-xs text-[var(--muted-foreground)]">Guess the secret programming word (6 incorrect attempts allowed)</p>
+          <button id="reset-btn" class="px-2.5 py-1 text-xs font-medium rounded-lg bg-[var(--accent)] hover:opacity-90 transition border border-[var(--border)]">
+            🔄 New Word
+          </button>
+        </div>
 
-        <!-- Lives / Attempts Indicator -->
-        <div class="mt-2 text-xs font-medium flex items-center gap-1.5">
-          <span class="text-[var(--muted-foreground)]">Attempts Left:</span>
-          <span id="lives-count" class="font-bold text-rose-500 text-sm">6</span>
-          <span class="text-[var(--muted-foreground)]">/ 6</span>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+          <!-- Hangman Visual -->
+          <div class="flex flex-col items-center justify-center p-3 bg-[var(--background)]/60 rounded-xl border border-[var(--border)]">
+            <svg id="hangman-svg" viewBox="0 0 160 160" class="w-32 h-32 stroke-current text-[var(--foreground)]" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">
+              <line x1="20" y1="145" x2="140" y2="145" class="opacity-70" />
+              <line x1="45" y1="145" x2="45" y2="20" class="opacity-70" />
+              <line x1="45" y1="20" x2="110" y2="20" class="opacity-70" />
+              <line x1="45" y1="45" x2="70" y2="20" class="opacity-70" />
+              <line x1="110" y1="20" x2="110" y2="40" class="stroke-amber-500/80" stroke-width="2" />
+              <circle id="part-head" cx="110" cy="52" r="12" class="hidden text-rose-500" stroke-width="3" />
+              <line id="part-body" x1="110" y1="64" x2="110" y2="98" class="hidden text-rose-500" stroke-width="3" />
+              <line id="part-left-arm" x1="110" y1="74" x2="92" y2="88" class="hidden text-rose-500" stroke-width="3" />
+              <line id="part-right-arm" x1="110" y1="74" x2="128" y2="88" class="hidden text-rose-500" stroke-width="3" />
+              <line id="part-left-leg" x1="110" y1="98" x2="94" y2="125" class="hidden text-rose-500" stroke-width="3" />
+              <line id="part-right-leg" x1="110" y1="98" x2="126" y2="125" class="hidden text-rose-500" stroke-width="3" />
+            </svg>
+            <div class="mt-2 text-xs font-medium">
+              <span class="text-[var(--muted-foreground)]">Attempts Left:</span>
+              <span id="lives-count" class="font-bold text-rose-500 text-sm">6</span> / 6
+            </div>
+          </div>
+
+          <!-- Letters and Banner -->
+          <div class="flex flex-col items-center justify-center gap-3">
+            <div id="word-display" class="flex flex-wrap justify-center gap-2 text-2xl font-mono font-bold tracking-widest text-[var(--foreground)] min-h-[44px] items-center"></div>
+            <div id="status-banner" class="hidden w-full text-center py-2 px-3 rounded-lg text-xs font-semibold animate-pop"></div>
+          </div>
+        </div>
+
+        <div id="keyboard" class="grid grid-cols-7 sm:grid-cols-9 gap-1.5 pt-2 border-t border-[var(--border)]"></div>
+        <div class="text-[11px] text-[var(--muted-foreground)] flex items-center justify-between">
+          <span>Python source: <a href="https://github.com/anishravi-13/CodeAlpha_PythonProgramming/blob/main/Task1_Hangman/hangman.py" target="_blank" class="text-emerald-500 hover:underline">Task1_Hangman/hangman.py</a></span>
+          <span>Keyboard typing supported</span>
         </div>
       </div>
 
-      <!-- Word Display & Status -->
-      <div class="flex flex-col items-center justify-center gap-3">
-        <div class="text-xs text-[var(--muted-foreground)] uppercase tracking-wider font-semibold">Word to Guess</div>
-        <div id="word-display" class="flex flex-wrap justify-center gap-2 text-2xl font-mono font-bold tracking-widest text-[var(--foreground)] min-h-[48px] items-center">
-          <!-- Letter slots inserted here -->
+      <!-- ================= TASK 2: STOCK TRACKER ================= -->
+      <div id="tab-t2" class="tab-pane hidden flex flex-col gap-4">
+        <p class="text-xs text-[var(--muted-foreground)]">Select stocks, enter share quantities, and calculate the total investment value based on fixed dictionary rates.</p>
+
+        <!-- Input controls -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 bg-[var(--background)]/60 rounded-xl border border-[var(--border)]">
+          <div>
+            <label class="block text-xs font-medium text-[var(--muted-foreground)] mb-1">Select Stock</label>
+            <select id="stock-select" class="w-full text-xs p-2 rounded-lg bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)]">
+              <option value="AAPL">AAPL - $180.00</option>
+              <option value="TSLA">TSLA - $250.00</option>
+              <option value="GOOGL">GOOGL - $140.00</option>
+              <option value="MSFT">MSFT - $400.00</option>
+              <option value="AMZN">AMZN - $175.00</option>
+              <option value="NVDA">NVDA - $120.00</option>
+              <option value="META">META - $490.00</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-[var(--muted-foreground)] mb-1">Number of Shares</label>
+            <input type="number" id="stock-qty" min="1" value="10" class="w-full text-xs p-2 rounded-lg bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)]">
+          </div>
+          <div class="flex items-end">
+            <button onclick="addStockItem()" class="w-full text-xs font-semibold py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition">
+              + Add to Portfolio
+            </button>
+          </div>
         </div>
 
-        <!-- Banner for Win/Loss -->
-        <div id="status-banner" class="hidden w-full text-center py-2 px-3 rounded-lg text-xs font-semibold animate-pop"></div>
+        <!-- Portfolio Table -->
+        <div class="border border-[var(--border)] rounded-xl overflow-hidden text-xs">
+          <table class="w-full text-left">
+            <thead class="bg-[var(--background)]/80 text-[var(--muted-foreground)] border-b border-[var(--border)]">
+              <tr>
+                <th class="p-2.5">Stock</th>
+                <th class="p-2.5">Price</th>
+                <th class="p-2.5">Qty</th>
+                <th class="p-2.5">Total Value</th>
+                <th class="p-2.5 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="portfolio-tbody" class="divide-y divide-[var(--border)]">
+              <!-- Items populated by JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Summary & Actions -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 p-3 bg-emerald-500/10 border border-emerald-500/30 rounded-xl">
+          <div>
+            <div class="text-xs text-[var(--muted-foreground)]">Total Portfolio Investment:</div>
+            <div id="portfolio-total-val" class="text-xl font-bold text-emerald-500">$0.00</div>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="exportPortfolioCSV()" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-[var(--card)] border border-[var(--border)] hover:bg-[var(--accent)] transition">
+              📥 Export CSV
+            </button>
+            <button onclick="clearPortfolio()" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-rose-500/15 text-rose-500 border border-rose-500/30 hover:bg-rose-500/25 transition">
+              🗑️ Clear
+            </button>
+          </div>
+        </div>
+        <div class="text-[11px] text-[var(--muted-foreground)]">
+          Python source: <a href="https://github.com/anishravi-13/CodeAlpha_PythonProgramming/blob/main/Task2_Stock_Tracker/stock_tracker.py" target="_blank" class="text-emerald-500 hover:underline">Task2_Stock_Tracker/stock_tracker.py</a>
+        </div>
+      </div>
+
+      <!-- ================= TASK 3: TASK AUTOMATION ================= -->
+      <div id="tab-t3" class="tab-pane hidden flex flex-col gap-4">
+        <p class="text-xs text-[var(--muted-foreground)]">Interactive demonstration of task automation concepts using regular expressions (Regex), file organization, and web scraping.</p>
+
+        <!-- Automation 1: Regex Email Extractor -->
+        <div class="p-4 bg-[var(--background)]/60 rounded-xl border border-[var(--border)] flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-[var(--foreground)] flex items-center gap-1.5">
+              📧 Feature A: Regex Email Address Extractor
+            </h3>
+            <button onclick="runEmailExtraction()" class="text-xs font-semibold px-3 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition">
+              Extract Emails
+            </button>
+          </div>
+          <textarea id="email-sample-text" rows="3" class="w-full text-xs p-2 rounded-lg bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] font-mono">Contact CodeAlpha team at services@codealpha.tech or services.codealpha@gmail.com for inquiries. HR reaches out at hr.department@company.org!</textarea>
+          <div id="email-output-box" class="p-2.5 rounded-lg bg-[var(--card)] border border-[var(--border)] text-xs font-mono text-emerald-500 hidden">
+            <!-- Extracted emails appear here -->
+          </div>
+        </div>
+
+        <!-- Automation 2: Web Title Scraper Simulator -->
+        <div class="p-4 bg-[var(--background)]/60 rounded-xl border border-[var(--border)] flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <h3 class="text-xs font-bold text-[var(--foreground)] flex items-center gap-1.5">
+              🌐 Feature B: Webpage Title Scraper
+            </h3>
+            <button onclick="scrapeTitleDemo()" class="text-xs font-semibold px-3 py-1 rounded-lg bg-[var(--foreground)] text-[var(--background)] transition">
+              Fetch Title
+            </button>
+          </div>
+          <input type="text" id="url-input" value="https://www.python.org" class="w-full text-xs p-2 rounded-lg bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)] font-mono">
+          <div id="url-output-box" class="p-2 rounded-lg bg-[var(--card)] border border-[var(--border)] text-xs text-[var(--muted-foreground)]">
+            Click 'Fetch Title' to simulate webpage scraping.
+          </div>
+        </div>
+
+        <div class="text-[11px] text-[var(--muted-foreground)]">
+          Python source: <a href="https://github.com/anishravi-13/CodeAlpha_PythonProgramming/blob/main/Task3_Automation/task_automation.py" target="_blank" class="text-emerald-500 hover:underline">Task3_Automation/task_automation.py</a>
+        </div>
+      </div>
+
+      <!-- ================= TASK 4: BASIC CHATBOT ================= -->
+      <div id="tab-t4" class="tab-pane hidden flex flex-col gap-3">
+        <p class="text-xs text-[var(--muted-foreground)]">Talk with AlphaBot, a rule-based chatbot utilizing predefined pattern matching.</p>
+
+        <!-- Chat Container -->
+        <div id="chat-messages" class="h-64 overflow-y-auto p-3 bg-[var(--background)]/60 rounded-xl border border-[var(--border)] flex flex-col gap-2.5 text-xs">
+          <div class="self-start max-w-[80%] p-2.5 rounded-xl rounded-tl-none bg-[var(--card)] border border-[var(--border)]">
+            <span class="font-bold text-emerald-500 block mb-0.5">AlphaBot:</span>
+            Hello! I am AlphaBot, your rule-based assistant for the CodeAlpha internship. Ask me "hello", "how are you", "what time is it?", "tell me a joke", or type "bye"!
+          </div>
+        </div>
+
+        <!-- Chat Input Form -->
+        <div class="flex gap-2">
+          <input type="text" id="chat-input" placeholder="Type a message (e.g. 'hello', 'what time is it', 'joke')..." class="flex-1 text-xs p-2.5 rounded-lg bg-[var(--card)] border border-[var(--border)] text-[var(--foreground)]" onkeydown="if(event.key==='Enter') sendChatMessage()">
+          <button onclick="sendChatMessage()" class="text-xs font-semibold px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white transition">
+            Send
+          </button>
+        </div>
+
+        <div class="text-[11px] text-[var(--muted-foreground)]">
+          Python source: <a href="https://github.com/anishravi-13/CodeAlpha_PythonProgramming/blob/main/Task4_Chatbot/chatbot.py" target="_blank" class="text-emerald-500 hover:underline">Task4_Chatbot/chatbot.py</a>
+        </div>
       </div>
 
     </div>
-
-    <!-- On-Screen Virtual Keyboard -->
-    <div class="border-t border-[var(--border)] pt-3">
-      <div class="text-[11px] text-[var(--muted-foreground)] text-center mb-2 font-medium">Click letters below or use your computer keyboard:</div>
-      <div id="keyboard" class="grid grid-cols-7 sm:grid-cols-9 gap-1.5 justify-center">
-        <!-- Alphabet keys inserted by JS -->
-      </div>
-    </div>
-
   </div>
 
   <script>
-    // Audio synthesis for sounds without external dependencies
-    const audioCtx = (window.AudioContext || window.webkitAudioContext) ? new (window.AudioContext || window.webkitAudioContext)() : null;
-    function playBeep(freq, type, duration) {
-      if (!audioCtx) return;
-      try {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.type = type;
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.start();
-        osc.stop(audioCtx.currentTime + duration);
-      } catch (e) {}
+    // Tab Switching Logic
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('border-emerald-500', 'text-emerald-500');
+        btn.classList.add('border-transparent', 'text-[var(--muted-foreground)]');
+      });
+
+      document.getElementById(tabId).classList.remove('hidden');
+      const activeBtnId = 'btn-' + tabId.replace('tab-', '');
+      const activeBtn = document.getElementById(activeBtnId);
+      if (activeBtn) {
+        activeBtn.classList.remove('border-transparent', 'text-[var(--muted-foreground)]');
+        activeBtn.classList.add('border-emerald-500', 'text-emerald-500');
+      }
     }
 
-    // Predefined words matching the assignment specifications
+    // ================= TASK 1 LOGIC (HANGMAN) =================
     const WORDS = ["PYTHON", "PROGRAMMING", "DEVELOPER", "ALGORITHM", "CODING"];
-    const BODY_PARTS = [
-      "part-head",
-      "part-body",
-      "part-left-arm",
-      "part-right-arm",
-      "part-left-leg",
-      "part-right-leg"
-    ];
-
+    const BODY_PARTS = ["part-head", "part-body", "part-left-arm", "part-right-arm", "part-left-leg", "part-right-leg"];
     let secretWord = "";
     let guessedLetters = new Set();
     let incorrectCount = 0;
@@ -136,40 +265,32 @@
     const keyboardEl = document.getElementById("keyboard");
     const resetBtn = document.getElementById("reset-btn");
 
-    // Build Keyboard
-    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-    alphabet.forEach(letter => {
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").forEach(letter => {
       const btn = document.createElement("button");
       btn.id = "key-" + letter;
       btn.textContent = letter;
-      btn.className = "key-btn py-1.5 text-xs font-semibold rounded-md border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--accent)] active:scale-95 transition text-center";
+      btn.className = "key-btn py-1 text-xs font-semibold rounded-md border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--accent)] active:scale-95 transition text-center";
       btn.addEventListener("click", () => handleGuess(letter));
       keyboardEl.appendChild(btn);
     });
 
-    function initGame() {
+    function initHangman() {
       secretWord = WORDS[Math.floor(Math.random() * WORDS.length)];
       guessedLetters.clear();
       incorrectCount = 0;
       gameOver = false;
-
       livesCount.textContent = maxMistakes;
       statusBanner.className = "hidden w-full text-center py-2 px-3 rounded-lg text-xs font-semibold animate-pop";
       statusBanner.textContent = "";
 
-      // Hide all hangman SVG parts
       BODY_PARTS.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.classList.add("hidden");
       });
 
-      // Enable keyboard keys
-      alphabet.forEach(letter => {
-        const btn = document.getElementById("key-" + letter);
-        if (btn) {
-          btn.disabled = false;
-          btn.className = "key-btn py-1.5 text-xs font-semibold rounded-md border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--accent)] active:scale-95 transition text-center text-[var(--foreground)]";
-        }
+      document.querySelectorAll(".key-btn").forEach(btn => {
+        btn.disabled = false;
+        btn.className = "key-btn py-1 text-xs font-semibold rounded-md border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--accent)] active:scale-95 transition text-center text-[var(--foreground)]";
       });
 
       renderWord();
@@ -181,10 +302,10 @@
 
       for (let char of secretWord) {
         const slot = document.createElement("span");
-        slot.className = "w-7 h-9 border-b-2 border-[var(--foreground)] flex items-center justify-center font-bold text-lg";
+        slot.className = "w-6 h-8 border-b-2 border-[var(--foreground)] flex items-center justify-center font-bold text-base";
         if (guessedLetters.has(char)) {
           slot.textContent = char;
-          slot.classList.add("animate-pop", "text-emerald-500");
+          slot.classList.add("text-emerald-500");
         } else {
           slot.textContent = "";
           hasWon = false;
@@ -193,88 +314,173 @@
       }
 
       if (hasWon && !gameOver) {
-        endGame(true);
+        gameOver = true;
+        statusBanner.classList.remove("hidden");
+        statusBanner.className = "w-full text-center py-2 px-3 rounded-lg text-xs font-semibold animate-pop bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+        statusBanner.textContent = "🎉 Congratulations! You guessed the word correctly!";
       }
     }
 
     function handleGuess(letter) {
       if (gameOver || guessedLetters.has(letter)) return;
-
       guessedLetters.add(letter);
       const btn = document.getElementById("key-" + letter);
       if (btn) btn.disabled = true;
 
       if (secretWord.includes(letter)) {
-        playBeep(520, "sine", 0.15);
-        if (btn) {
-          btn.classList.add("bg-emerald-500/20", "text-emerald-500", "border-emerald-500/40");
-        }
+        if (btn) btn.classList.add("bg-emerald-500/20", "text-emerald-500", "border-emerald-500/40");
         renderWord();
       } else {
-        playBeep(240, "sawtooth", 0.2);
-        if (btn) {
-          btn.classList.add("bg-rose-500/20", "text-rose-500", "border-rose-500/40");
-        }
+        if (btn) btn.classList.add("bg-rose-500/20", "text-rose-500", "border-rose-500/40");
         incorrectCount++;
         livesCount.textContent = maxMistakes - incorrectCount;
-
-        // Show corresponding hangman part
         const partId = BODY_PARTS[incorrectCount - 1];
-        if (partId) {
-          document.getElementById(partId).classList.remove("hidden");
-        }
+        if (partId) document.getElementById(partId).classList.remove("hidden");
 
         if (incorrectCount >= maxMistakes) {
-          endGame(false);
+          gameOver = true;
+          statusBanner.classList.remove("hidden");
+          statusBanner.className = "w-full text-center py-2 px-3 rounded-lg text-xs font-semibold animate-pop bg-rose-500/20 text-rose-400 border border-rose-500/30";
+          statusBanner.innerHTML = `💀 Game Over! The word was <span class="font-bold underline">${secretWord}</span>`;
+          renderWord();
         }
       }
     }
 
-    function endGame(won) {
-      gameOver = true;
-      statusBanner.classList.remove("hidden");
-
-      if (won) {
-        playBeep(660, "sine", 0.3);
-        statusBanner.className = "w-full text-center py-2 px-3 rounded-lg text-xs font-semibold animate-pop bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
-        statusBanner.innerHTML = "🎉 Congratulations! You guessed the word correctly!";
-      } else {
-        playBeep(180, "sawtooth", 0.4);
-        statusBanner.className = "w-full text-center py-2 px-3 rounded-lg text-xs font-semibold animate-pop bg-rose-500/20 text-rose-400 border border-rose-500/30";
-        statusBanner.innerHTML = `💀 Game Over! The word was <span class="font-bold underline">${secretWord}</span>`;
-
-        // Reveal missing letters
-        wordDisplay.innerHTML = "";
-        for (let char of secretWord) {
-          const slot = document.createElement("span");
-          slot.className = "w-7 h-9 border-b-2 border-[var(--foreground)] flex items-center justify-center font-bold text-lg " + (guessedLetters.has(char) ? "text-emerald-500" : "text-rose-500 font-extrabold");
-          slot.textContent = char;
-          wordDisplay.appendChild(slot);
-        }
-      }
-
-      // Disable remaining keys
-      alphabet.forEach(l => {
-        const b = document.getElementById("key-" + l);
-        if (b) b.disabled = true;
-      });
-    }
-
-    // Physical Keyboard Listener
+    resetBtn.addEventListener("click", initHangman);
     window.addEventListener("keydown", (e) => {
-      const key = e.key.toUpperCase();
-      if (/^[A-Z]$/.test(key)) {
-        handleGuess(key);
+      const activeTab = document.getElementById("tab-t1");
+      if (!activeTab.classList.contains("hidden") && /^[a-zA-Z]$/.test(e.key)) {
+        handleGuess(e.key.toUpperCase());
       }
     });
+    initHangman();
 
-    resetBtn.addEventListener("click", () => {
-      playBeep(440, "sine", 0.1);
-      initGame();
-    });
+    // ================= TASK 2 LOGIC (STOCK TRACKER) =================
+    const STOCK_PRICES = {
+      "AAPL": 180.00, "TSLA": 250.00, "GOOGL": 140.00,
+      "MSFT": 400.00, "AMZN": 175.00, "NVDA": 120.00, "META": 490.00
+    };
+    let portfolio = [
+      { symbol: "AAPL", qty: 5, price: 180.00, total: 900.00 },
+      { symbol: "MSFT", qty: 2, price: 400.00, total: 800.00 }
+    ];
 
-    // Start on load
-    initGame();
+    function renderPortfolio() {
+      const tbody = document.getElementById("portfolio-tbody");
+      tbody.innerHTML = "";
+      let grandTotal = 0;
+
+      portfolio.forEach((item, index) => {
+        grandTotal += item.total;
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-[var(--background)]/30";
+        tr.innerHTML = `
+          <td class="p-2.5 font-bold">${item.symbol}</td>
+          <td class="p-2.5">$${item.price.toFixed(2)}</td>
+          <td class="p-2.5">${item.qty}</td>
+          <td class="p-2.5 font-semibold text-emerald-500">$${item.total.toFixed(2)}</td>
+          <td class="p-2.5 text-right">
+            <button onclick="removeStockItem(${index})" class="text-rose-500 hover:underline">Remove</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("portfolio-total-val").textContent = "$" + grandTotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function addStockItem() {
+      const symbol = document.getElementById("stock-select").value;
+      const qty = parseInt(document.getElementById("stock-qty").value, 10);
+      if (isNaN(qty) || qty <= 0) return alert("Please enter a valid positive quantity");
+      const price = STOCK_PRICES[symbol];
+      portfolio.push({ symbol, qty, price, total: price * qty });
+      renderPortfolio();
+    }
+
+    function removeStockItem(index) {
+      portfolio.splice(index, 1);
+      renderPortfolio();
+    }
+
+    function clearPortfolio() {
+      portfolio = [];
+      renderPortfolio();
+    }
+
+    function exportPortfolioCSV() {
+      let csvContent = "data:text/csv;charset=utf-8,Stock,Quantity,Price,Total\n";
+      portfolio.forEach(item => {
+        csvContent += `${item.symbol},${item.qty},${item.price},${item.total}\n`;
+      });
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", "portfolio_summary.csv");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+    renderPortfolio();
+
+    // ================= TASK 3 LOGIC (AUTOMATION) =================
+    function runEmailExtraction() {
+      const text = document.getElementById("email-sample-text").value;
+      const emailPattern = /[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]*[a-zA-Z0-9]/g;
+      const matches = text.match(emailPattern) || [];
+      const unique = [...new Set(matches)];
+      const box = document.getElementById("email-output-box");
+      box.classList.remove("hidden");
+      if (unique.length > 0) {
+        box.innerHTML = "<strong>Found " + unique.length + " unique email(s):</strong><br>" + unique.map(e => "• " + e).join("<br>");
+      } else {
+        box.innerHTML = "No email addresses found in the text.";
+      }
+    }
+
+    function scrapeTitleDemo() {
+      const url = document.getElementById("url-input").value;
+      const box = document.getElementById("url-output-box");
+      box.innerHTML = `Fetching title for <strong>${url}</strong>...<br><span class="text-emerald-500 font-semibold">Title Tag Extracted: "Welcome to Python.org"</span>`;
+    }
+
+    // ================= TASK 4 LOGIC (CHATBOT) =================
+    function sendChatMessage() {
+      const input = document.getElementById("chat-input");
+      const message = input.value.trim();
+      if (!message) return;
+
+      const container = document.getElementById("chat-messages");
+
+      // User Bubble
+      const userBubble = document.createElement("div");
+      userBubble.className = "self-end max-w-[80%] p-2.5 rounded-xl rounded-tr-none bg-emerald-600 text-white";
+      userBubble.innerHTML = `<span class="font-bold block mb-0.5 text-emerald-100">You:</span> ${message}`;
+      container.appendChild(userBubble);
+
+      // Bot Response
+      const lower = message.toLowerCase();
+      let reply = "I'm not sure I understand that. Try asking 'hello', 'what time is it', 'tell me a joke', or type 'bye'!";
+
+      if (/hello|hi|hey/.test(lower)) reply = "Hi there! How can I help you today?";
+      else if (/how are you|how do you do/.test(lower)) reply = "I'm fine, thanks! I am running smoothly. How about you?";
+      else if (/who are you|your name/.test(lower)) reply = "I am AlphaBot, a rule-based Python chatbot created for the CodeAlpha internship!";
+      else if (/time|date/.test(lower)) reply = "The current time is: " + new Date().toLocaleString();
+      else if (/joke/.test(lower)) reply = "Why do programmers prefer dark mode? Because light attracts bugs!";
+      else if (/bye|exit|quit/.test(lower)) reply = "Goodbye! Have a wonderful day ahead!";
+
+      setTimeout(() => {
+        const botBubble = document.createElement("div");
+        botBubble.className = "self-start max-w-[80%] p-2.5 rounded-xl rounded-tl-none bg-[var(--card)] border border-[var(--border)]";
+        botBubble.innerHTML = `<span class="font-bold text-emerald-500 block mb-0.5">AlphaBot:</span> ${reply}`;
+        container.appendChild(botBubble);
+        container.scrollTop = container.scrollHeight;
+      }, 250);
+
+      input.value = "";
+      container.scrollTop = container.scrollHeight;
+    }
   </script>
 </body>
 </html>
