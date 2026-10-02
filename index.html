@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeAlpha Hangman Game</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @keyframes popIn {
+      0% { transform: scale(0.8); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+    .animate-pop { animation: popIn 0.25s ease-out forwards; }
+    .key-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+  </style>
+</head>
+<body class="bg-transparent text-[var(--foreground)] antialiased p-3 select-none">
+  <div class="max-w-xl mx-auto bg-[var(--card)] text-[var(--foreground)] border border-[var(--border)] rounded-2xl p-5 shadow-lg flex flex-col gap-4">
+    
+    <!-- Header -->
+    <div class="flex items-center justify-between border-b border-[var(--border)] pb-3">
+      <div>
+        <h1 class="text-xl font-bold tracking-tight text-[var(--foreground)] flex items-center gap-2">
+          🎯 Hangman Game
+          <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-500 font-semibold border border-emerald-500/30">CodeAlpha Task 1</span>
+        </h1>
+        <p class="text-xs text-[var(--muted-foreground)]">Guess the secret word one letter at a time</p>
+      </div>
+      <button id="reset-btn" class="px-3 py-1.5 text-xs font-medium rounded-lg bg-[var(--accent)] hover:opacity-90 transition border border-[var(--border)] flex items-center gap-1">
+        🔄 New Game
+      </button>
+    </div>
+
+    <!-- Main Game Area -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
+      
+      <!-- Hangman Graphic (SVG) -->
+      <div class="flex flex-col items-center justify-center p-3 bg-[var(--background)]/60 rounded-xl border border-[var(--border)]">
+        <svg id="hangman-svg" viewBox="0 0 160 160" class="w-36 h-36 stroke-current text-[var(--foreground)]" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" fill="none">
+          <!-- Gallows Base -->
+          <line x1="20" y1="145" x2="140" y2="145" class="opacity-70" />
+          <!-- Upright Post -->
+          <line x1="45" y1="145" x2="45" y2="20" class="opacity-70" />
+          <!-- Top Beam -->
+          <line x1="45" y1="20" x2="110" y2="20" class="opacity-70" />
+          <!-- Support Beam -->
+          <line x1="45" y1="45" x2="70" y2="20" class="opacity-70" />
+          <!-- Rope -->
+          <line x1="110" y1="20" x2="110" y2="40" class="stroke-amber-500/80" stroke-width="2" />
+
+          <!-- Dynamic Body Parts -->
+          <!-- 1: Head -->
+          <circle id="part-head" cx="110" cy="52" r="12" class="hidden text-rose-500" stroke-width="3" />
+          <!-- 2: Body -->
+          <line id="part-body" x1="110" y1="64" x2="110" y2="98" class="hidden text-rose-500" stroke-width="3" />
+          <!-- 3: Left Arm -->
+          <line id="part-left-arm" x1="110" y1="74" x2="92" y2="88" class="hidden text-rose-500" stroke-width="3" />
+          <!-- 4: Right Arm -->
+          <line id="part-right-arm" x1="110" y1="74" x2="128" y2="88" class="hidden text-rose-500" stroke-width="3" />
+          <!-- 5: Left Leg -->
+          <line id="part-left-leg" x1="110" y1="98" x2="94" y2="125" class="hidden text-rose-500" stroke-width="3" />
+          <!-- 6: Right Leg -->
+          <line id="part-right-leg" x1="110" y1="98" x2="126" y2="125" class="hidden text-rose-500" stroke-width="3" />
+        </svg>
+
+        <!-- Lives / Attempts Indicator -->
+        <div class="mt-2 text-xs font-medium flex items-center gap-1.5">
+          <span class="text-[var(--muted-foreground)]">Attempts Left:</span>
+          <span id="lives-count" class="font-bold text-rose-500 text-sm">6</span>
+          <span class="text-[var(--muted-foreground)]">/ 6</span>
+        </div>
+      </div>
+
+      <!-- Word Display & Status -->
+      <div class="flex flex-col items-center justify-center gap-3">
+        <div class="text-xs text-[var(--muted-foreground)] uppercase tracking-wider font-semibold">Word to Guess</div>
+        <div id="word-display" class="flex flex-wrap justify-center gap-2 text-2xl font-mono font-bold tracking-widest text-[var(--foreground)] min-h-[48px] items-center">
+          <!-- Letter slots inserted here -->
+        </div>
+
+        <!-- Banner for Win/Loss -->
+        <div id="status-banner" class="hidden w-full text-center py-2 px-3 rounded-lg text-xs font-semibold animate-pop"></div>
+      </div>
+
+    </div>
+
+    <!-- On-Screen Virtual Keyboard -->
+    <div class="border-t border-[var(--border)] pt-3">
+      <div class="text-[11px] text-[var(--muted-foreground)] text-center mb-2 font-medium">Click letters below or use your computer keyboard:</div>
+      <div id="keyboard" class="grid grid-cols-7 sm:grid-cols-9 gap-1.5 justify-center">
+        <!-- Alphabet keys inserted by JS -->
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Audio synthesis for sounds without external dependencies
+    const audioCtx = (window.AudioContext || window.webkitAudioContext) ? new (window.AudioContext || window.webkitAudioContext)() : null;
+    function playBeep(freq, type, duration) {
+      if (!audioCtx) return;
+      try {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = type;
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    // Predefined words matching the assignment specifications
+    const WORDS = ["PYTHON", "PROGRAMMING", "DEVELOPER", "ALGORITHM", "CODING"];
+    const BODY_PARTS = [
+      "part-head",
+      "part-body",
+      "part-left-arm",
+      "part-right-arm",
+      "part-left-leg",
+      "part-right-leg"
+    ];
+
+    let secretWord = "";
+    let guessedLetters = new Set();
+    let incorrectCount = 0;
+    const maxMistakes = 6;
+    let gameOver = false;
+
+    const wordDisplay = document.getElementById("word-display");
+    const livesCount = document.getElementById("lives-count");
+    const statusBanner = document.getElementById("status-banner");
+    const keyboardEl = document.getElementById("keyboard");
+    const resetBtn = document.getElementById("reset-btn");
+
+    // Build Keyboard
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    alphabet.forEach(letter => {
+      const btn = document.createElement("button");
+      btn.id = "key-" + letter;
+      btn.textContent = letter;
+      btn.className = "key-btn py-1.5 text-xs font-semibold rounded-md border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--accent)] active:scale-95 transition text-center";
+      btn.addEventListener("click", () => handleGuess(letter));
+      keyboardEl.appendChild(btn);
+    });
+
+    function initGame() {
+      secretWord = WORDS[Math.floor(Math.random() * WORDS.length)];
+      guessedLetters.clear();
+      incorrectCount = 0;
+      gameOver = false;
+
+      livesCount.textContent = maxMistakes;
+      statusBanner.className = "hidden w-full text-center py-2 px-3 rounded-lg text-xs font-semibold animate-pop";
+      statusBanner.textContent = "";
+
+      // Hide all hangman SVG parts
+      BODY_PARTS.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add("hidden");
+      });
+
+      // Enable keyboard keys
+      alphabet.forEach(letter => {
+        const btn = document.getElementById("key-" + letter);
+        if (btn) {
+          btn.disabled = false;
+          btn.className = "key-btn py-1.5 text-xs font-semibold rounded-md border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--accent)] active:scale-95 transition text-center text-[var(--foreground)]";
+        }
+      });
+
+      renderWord();
+    }
+
+    function renderWord() {
+      wordDisplay.innerHTML = "";
+      let hasWon = true;
+
+      for (let char of secretWord) {
+        const slot = document.createElement("span");
+        slot.className = "w-7 h-9 border-b-2 border-[var(--foreground)] flex items-center justify-center font-bold text-lg";
+        if (guessedLetters.has(char)) {
+          slot.textContent = char;
+          slot.classList.add("animate-pop", "text-emerald-500");
+        } else {
+          slot.textContent = "";
+          hasWon = false;
+        }
+        wordDisplay.appendChild(slot);
+      }
+
+      if (hasWon && !gameOver) {
+        endGame(true);
+      }
+    }
+
+    function handleGuess(letter) {
+      if (gameOver || guessedLetters.has(letter)) return;
+
+      guessedLetters.add(letter);
+      const btn = document.getElementById("key-" + letter);
+      if (btn) btn.disabled = true;
+
+      if (secretWord.includes(letter)) {
+        playBeep(520, "sine", 0.15);
+        if (btn) {
+          btn.classList.add("bg-emerald-500/20", "text-emerald-500", "border-emerald-500/40");
+        }
+        renderWord();
+      } else {
+        playBeep(240, "sawtooth", 0.2);
+        if (btn) {
+          btn.classList.add("bg-rose-500/20", "text-rose-500", "border-rose-500/40");
+        }
+        incorrectCount++;
+        livesCount.textContent = maxMistakes - incorrectCount;
+
+        // Show corresponding hangman part
+        const partId = BODY_PARTS[incorrectCount - 1];
+        if (partId) {
+          document.getElementById(partId).classList.remove("hidden");
+        }
+
+        if (incorrectCount >= maxMistakes) {
+          endGame(false);
+        }
+      }
+    }
+
+    function endGame(won) {
+      gameOver = true;
+      statusBanner.classList.remove("hidden");
+
+      if (won) {
+        playBeep(660, "sine", 0.3);
+        statusBanner.className = "w-full text-center py-2 px-3 rounded-lg text-xs font-semibold animate-pop bg-emerald-500/20 text-emerald-400 border border-emerald-500/30";
+        statusBanner.innerHTML = "🎉 Congratulations! You guessed the word correctly!";
+      } else {
+        playBeep(180, "sawtooth", 0.4);
+        statusBanner.className = "w-full text-center py-2 px-3 rounded-lg text-xs font-semibold animate-pop bg-rose-500/20 text-rose-400 border border-rose-500/30";
+        statusBanner.innerHTML = `💀 Game Over! The word was <span class="font-bold underline">${secretWord}</span>`;
+
+        // Reveal missing letters
+        wordDisplay.innerHTML = "";
+        for (let char of secretWord) {
+          const slot = document.createElement("span");
+          slot.className = "w-7 h-9 border-b-2 border-[var(--foreground)] flex items-center justify-center font-bold text-lg " + (guessedLetters.has(char) ? "text-emerald-500" : "text-rose-500 font-extrabold");
+          slot.textContent = char;
+          wordDisplay.appendChild(slot);
+        }
+      }
+
+      // Disable remaining keys
+      alphabet.forEach(l => {
+        const b = document.getElementById("key-" + l);
+        if (b) b.disabled = true;
+      });
+    }
+
+    // Physical Keyboard Listener
+    window.addEventListener("keydown", (e) => {
+      const key = e.key.toUpperCase();
+      if (/^[A-Z]$/.test(key)) {
+        handleGuess(key);
+      }
+    });
+
+    resetBtn.addEventListener("click", () => {
+      playBeep(440, "sine", 0.1);
+      initGame();
+    });
+
+    // Start on load
+    initGame();
+  </script>
+</body>
+</html>
